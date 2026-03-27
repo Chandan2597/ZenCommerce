@@ -1,3 +1,3 @@
 # ZenCommerce
 
-### This is an ecommer web application developed in Django
+### This is an Ecommerce web application developed in Django
