@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load cart_filters %}
+{% block content %}
+<div style="background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem;">
+    <h2 style="margin-top:0; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">Your Orders</h2>
+    
+    {% if orders %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border);">
+                    <th style="padding: 1rem 0;">Product</th>
+                    <th style="padding: 1rem;">Date</th>
+                    <th style="padding: 1rem;">Price</th>
+                    <th style="padding: 1rem; text-align: center;">Quantity</th>
+                    <th style="padding: 1rem; text-align: right;">Total</th>
+                    <th style="padding: 1rem; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 1rem 0;">
+                        <span style="font-weight: 500;">{{ order.product.name }}</span>
+                    </td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ order.date }}</td>
+                    <td style="padding: 1rem;">${{ order.price }}</td>
+                    <td style="padding: 1rem; text-align: center;">{{ order.quantity }}</td>
+                    <td style="padding: 1rem; text-align: right; font-weight: 600;">${{ order.price|multiply:order.quantity }}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        {% if order.status %}
+                        <span style="background: rgba(16, 185, 129, 0.1); color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Completed</span>
+                        {% else %}
+                        <span style="background: rgba(245, 158, 11, 0.1); color: #F59E0B; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem 0;">
+        <i class="fa-solid fa-box-open" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+        <h3 style="margin-bottom: 0.5rem;">No orders yet</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't placed any orders yet.</p>
+        <a href="/store/" class="btn btn-primary" style="width: auto;">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
