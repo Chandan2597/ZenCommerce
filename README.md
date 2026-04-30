@@ -1,6 +1,4 @@
-# ZenCommerce
-
-## 🛒 Full-Stack E-Commerce Platform
+# ZenCommerce - Full-Stack E-Commerce Platform
 
 This project is a full-stack e-commerce web application built using **Django (Python)** for the backend and **HTML, CSS, and JavaScript** for the frontend. It provides a complete online shopping experience, including user authentication, product browsing, cart management, and secure payment processing.
 
