@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 500px; margin: 4rem auto; background: var(--surface); padding: 2.5rem; border-radius: var(--radius); box-shadow: var(--shadow-lg); text-align: center;">
+        <div style="color: #EF4444; margin-bottom: 1.5rem;">
+            <i class="fas fa-times-circle" style="font-size: 4rem;"></i>
+        </div>
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem; color: var(--text-main);">Payment Cancelled</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;">Your payment was cancelled. You can try again or continue shopping.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'cart' %}" class="btn btn-outline" style="width: auto;">Back to Cart</a>
+            <a href="{% url 'store' %}" class="btn btn-primary" style="width: auto;">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

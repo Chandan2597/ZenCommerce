@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load cart_filters %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; margin-bottom: 2rem;">
+            <h2 style="margin-top: 0; margin-bottom: 2rem; text-align: center; font-size: 1.75rem; color: var(--text-main);">Checkout</h2>
+            
+            <div id="checkout-error" style="display: none; background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;"></div>
+
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; font-size: 1.25rem; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Order Summary</h3>
+                
+                {% for product in products %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--text-main);">{{ product.name }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.875rem;">Quantity: {{ product|cart_quantity:cart }}</div>
+                    </div>
+                    <div style="font-weight: 600; color: var(--primary);">₹{{ product|price_total:cart }}</div>
+                </div>
+                {% endfor %}
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; margin-top: 1rem; font-size: 1.25rem; font-weight: 700; border-top: 2px solid var(--border);">
+                    <span>Total:</span>
+                    <span style="color: var(--primary);">₹{{ total }}</span>
+                </div>
+            </div>
+
+            <form id="checkout-form" method="post" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Delivery Address</label>
+                    <textarea name="address" class="form-control" rows="3" required placeholder="Enter your full delivery address"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" required placeholder="+91 98765 43210">
+                </div>
+
+                <button type="submit" id="pay-button" class="btn btn-primary" style="margin-top: 1rem;">
+                    Proceed to Payment
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const checkoutForm = document.getElementById('checkout-form');
+const payButton = document.getElementById('pay-button');
+const errorContainer = document.getElementById('checkout-error');
+
+checkoutForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    errorContainer.style.display = 'none';
+    errorContainer.textContent = '';
+    payButton.disabled = true;
+    payButton.textContent = 'Creating payment...';
+
+    const formData = new FormData(checkoutForm);
+
+    try {
+        const response = await fetch('{% url "create_payment_order" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            name: data.name,
+            description: data.description,
+            order_id: data.order_id,
+            handler: async function (paymentResponse) {
+                try {
+                    const verifyResponse = await fetch('{% url "payment_success" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(paymentResponse)
+                    });
+                    const verifyData = await verifyResponse.json();
+                    if (verifyData.success) {
+                        window.location.href = verifyData.redirect_url;
+                    } else {
+                        throw new Error(verifyData.error || 'Payment verification failed');
+                    }
+                } catch (verificationError) {
+                    alert('Payment verification failed. Please contact support.');
+                    payButton.disabled = false;
+                    payButton.textContent = 'Proceed to Payment';
+                }
+            },
+            modal: {
+                ondismiss: function () {
+                    window.location.href = '{% url "payment_cancel" %}';
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch (error) {
+        errorContainer.style.display = 'block';
+        errorContainer.textContent = error.message || 'Unable to create payment session. Try again.';
+        payButton.disabled = false;
+        payButton.textContent = 'Proceed to Payment';
+    }
+});
+</script>
+{% endblock %}

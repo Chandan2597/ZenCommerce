@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load cart_filters %}
+{% block content %}
+<div style="background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem;">
+    <h2 style="margin-top:0; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">Shopping Cart</h2>
+    
+    {% if products %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border);">
+                    <th style="padding: 1rem 0;">Product</th>
+                    <th style="padding: 1rem;">Price</th>
+                    <th style="padding: 1rem; text-align: center;">Quantity</th>
+                    <th style="padding: 1rem; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 1rem 0;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="" style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover;">
+                            {% else %}
+                            <div style="width: 64px; height: 64px; border-radius: 8px; background: #e5e7eb;"></div>
+                            {% endif %}
+                            <span style="font-weight: 500;">{{ product.name }}</span>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem;">${{ product.price }}</td>
+                    <td style="padding: 1rem; text-align: center;">{{ product|cart_quantity:request.session.cart }}</td>
+                    <td style="padding: 1rem; text-align: right; font-weight: 600;">${{ product|price_total:request.session.cart }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="padding: 1.5rem 0; font-size: 1.25rem; font-weight: 700; text-align: right;">Total Amount:</td>
+                    <td style="padding: 1.5rem 1rem; font-size: 1.25rem; font-weight: 700; text-align: right; color: var(--primary);">${{ products|cart_total:request.session.cart }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+        <a href="{% url 'checkout' %}" class="btn btn-primary" style="width: auto;">
+            Proceed to Checkout
+        </a>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem 0;">
+        <i class="fa-solid fa-cart-shopping" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem;"></i>
+        <h3 style="margin-bottom: 0.5rem;">Your cart is empty</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't added anything to your cart yet.</p>
+        <a href="/store/" class="btn btn-primary" style="width: auto;">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

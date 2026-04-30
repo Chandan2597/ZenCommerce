@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 500px; margin: 4rem auto; background: var(--surface); padding: 2.5rem; border-radius: var(--radius); box-shadow: var(--shadow-lg); text-align: center;">
+        <div style="color: #10B981; margin-bottom: 1.5rem;">
+            <i class="fas fa-check-circle" style="font-size: 4rem;"></i>
+        </div>
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem; color: var(--text-main);">Payment Successful!</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;">Thank you for your purchase. Your order has been placed successfully.</p>
+        <a href="{% url 'orders' %}" class="btn btn-primary" style="width: auto; display: inline-block;">View Orders</a>
+    </div>
+</div>
+{% endblock %}
